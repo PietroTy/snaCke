@@ -20,6 +20,13 @@ typedef struct Grape {
     float spawnTime;
 } Grape;
 
+typedef struct Orange {
+    int x;
+    int y;
+    bool isVisible;
+    float spawnTime;
+} Orange;
+
 // Função para verificar se uma fruta está sobre o corpo da cobra
 bool IsPositionOccupiedBySnake(int x, int y, Snake head, Snake *body, int bodyLength) {
     // Verifica se está na posição da cabeça
@@ -36,23 +43,27 @@ bool IsPositionOccupiedBySnake(int x, int y, Snake head, Snake *body, int bodyLe
 }
 
 // Função para gerar uma nova posição válida para a maçã ou uva
-void GenerateValidPositionForFruit(Apple *apple, Grape *grape, Snake head, Snake *body, int bodyLength, bool isApple) {
+void GenerateValidPositionForFruit(Apple *apple, Grape *grape, Orange *orange, Snake head, Snake *body, int bodyLength, bool isApple, bool isGrape) {
     int fruitX, fruitY;
     do {
         fruitX = GetRandomValue(1, 11) * 50;
         fruitY = GetRandomValue(1, 11) * 50;
     } while (IsPositionOccupiedBySnake(fruitX, fruitY, head, body, bodyLength));
 
-    if (isApple) {
+    if (isApple && apple != NULL) {
         apple->x = fruitX;
         apple->y = fruitY;
-    } else {
+    } else if (isGrape && grape != NULL) {
         grape->x = fruitX;
         grape->y = fruitY;
+    } else if (orange != NULL) {
+        orange->x = fruitX;
+        orange->y = fruitY;
     }
 }
 
-void ResetGame(Snake *head, Snake *body, int *bodyLength, Apple *apple, Grape *grape, int *score, float *moveInterval, bool *gameOver, bool *moved, float *lastGrapeAppearanceTime, float currentTime, int *direction, bool *victory) {
+
+void ResetGame(Snake *head, Snake *body, int *bodyLength, Apple *apple, Grape *grape, Orange *orange, int *score, float *moveInterval, bool *gameOver, bool *moved, float *lastGrapeAppearanceTime, float *lastOrangeAppearanceTime, float currentTime, int *direction, bool *victory) {
     // Reiniciar cobra
     head->x = GetRandomValue(1, 11) * 50;  // Garante que a cobra começa longe das bordas
     head->y = GetRandomValue(1, 11) * 50;
@@ -65,9 +76,11 @@ void ResetGame(Snake *head, Snake *body, int *bodyLength, Apple *apple, Grape *g
     }
 
     // Reiniciar maçã e uva
-    GenerateValidPositionForFruit(apple, NULL, *head, body, *bodyLength, true);
+    GenerateValidPositionForFruit(apple, NULL, NULL, *head, body, *bodyLength, true, false);
     grape->isVisible = false;
+    orange->isVisible = false;
     *lastGrapeAppearanceTime = currentTime;
+    *lastOrangeAppearanceTime = currentTime;
 
     // Resetar outras variáveis
     *score = 0;
@@ -83,18 +96,19 @@ int main(void) {
     Snake head;
     Apple apple;
     Grape grape;
+    Orange orange;
     Snake body[144]; 
     int bodyLength = 2;
     int direction = 0;
     int score = 0;
     bool gameOver = false, victory = false, moved = false, open = false;
-    float moveInterval = 0.2f, lastMoveTime = 0.0f, lastGrapeAppearanceTime = 0.0f;
+    float moveInterval = 0.2f, lastMoveTime = 0.0f, lastGrapeAppearanceTime = 0.0f, lastOrangeAppearanceTime = 0.0f;
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(600, 600, "Snake Game");
     SetTargetFPS(60);
 
-    ResetGame(&head, body, &bodyLength, &apple, &grape, &score, &moveInterval, &gameOver, &moved, &lastGrapeAppearanceTime, GetTime(), &direction, &victory);
+    ResetGame(&head, body, &bodyLength, &apple, &grape, &orange, &score, &moveInterval, &gameOver, &moved, &lastGrapeAppearanceTime, &lastOrangeAppearanceTime, (float) GetTime(), &direction, &victory);
 
     while (!WindowShouldClose()) {
         float currentTime = GetTime(); // Obter o tempo atual
@@ -111,12 +125,12 @@ int main(void) {
             const char *lostMessage = "You Lost!";
             const char *scoreMessage = TextFormat("Score: %d", score);
             const char *resetMessage = "press R to reset";
-            DrawText(lostMessage, (GetScreenWidth() - MeasureText(lostMessage, 100)) / 2, (GetScreenHeight() - 100) / 2, 100, WHITE);
+            DrawText(lostMessage, (GetScreenWidth() - MeasureText(lostMessage, 100)) / 2, (GetScreenHeight() - 200) / 2, 100, WHITE);
             DrawText(scoreMessage, (GetScreenWidth() - MeasureText(scoreMessage, 60)) / 2, (GetScreenHeight() + 100) / 2, 60, WHITE);
             DrawText(resetMessage, (GetScreenWidth() - MeasureText(resetMessage, 30)) / 2, (GetScreenHeight() + 300) / 2, 30, WHITE);
 
             if (IsKeyPressed(KEY_R)) {
-                ResetGame(&head, body, &bodyLength, &apple, &grape, &score, &moveInterval, &gameOver, &moved, &lastGrapeAppearanceTime, currentTime, &direction, &victory);
+                ResetGame(&head, body, &bodyLength, &apple, &grape, &orange, &score, &moveInterval, &gameOver, &moved, &lastGrapeAppearanceTime, &lastOrangeAppearanceTime, (float) GetTime(), &direction, &victory);
             }
 
 
@@ -130,12 +144,12 @@ int main(void) {
             const char *winMessage = "You Won!";
             const char *scoreMessage = TextFormat("Score: %d", score);
             const char *resetMessage = "press R to reset";
-            DrawText(winMessage, (GetScreenWidth() - MeasureText(winMessage, 100)) / 2, (GetScreenHeight() - 100) / 2, 100, BLACK);
+            DrawText(winMessage, (GetScreenWidth() - MeasureText(winMessage, 100)) / 2, (GetScreenHeight() - 200) / 2, 100, BLACK);
             DrawText(scoreMessage, (GetScreenWidth() - MeasureText(scoreMessage, 60)) / 2, (GetScreenHeight() + 100) / 2, 60, BLACK);
             DrawText(resetMessage, (GetScreenWidth() - MeasureText(resetMessage, 30)) / 2, (GetScreenHeight() + 300) / 2, 30, BLACK);
 
             if (IsKeyPressed(KEY_R)) {
-                ResetGame(&head, body, &bodyLength, &apple, &grape, &score, &moveInterval, &gameOver, &moved, &lastGrapeAppearanceTime, currentTime, &direction, &victory);
+                ResetGame(&head, body, &bodyLength, &apple, &grape, &orange, &score, &moveInterval, &gameOver, &moved, &lastGrapeAppearanceTime, &lastOrangeAppearanceTime, (float) GetTime(), &direction, &victory);
             }
 
 
@@ -183,17 +197,28 @@ int main(void) {
             grape.isVisible = false;
             lastGrapeAppearanceTime = currentTime;
         } else if (!grape.isVisible && currentTime - lastGrapeAppearanceTime >= 12.0f) {
-            GenerateValidPositionForFruit(NULL, &grape, head, body, bodyLength, false);
+            GenerateValidPositionForFruit(NULL, &grape, NULL, head, body, bodyLength, false, true);
             grape.isVisible = true;
             grape.spawnTime = currentTime;
         }
+
+        // Lógica de spawn da laranja
+        if (orange.isVisible && currentTime - orange.spawnTime >= 15.0f) {
+            orange.isVisible = false;
+            lastOrangeAppearanceTime = currentTime;
+        } else if (!orange.isVisible && currentTime - lastOrangeAppearanceTime >= 30.0f) {
+            GenerateValidPositionForFruit(NULL, NULL, &orange, head, body, bodyLength, false, false);
+            orange.isVisible = true;
+            orange.spawnTime = currentTime;
+        }
+
 
         // Verificar se comeu a maçã
         if (head.x == apple.x && head.y == apple.y) {
             score++;
             body[bodyLength] = body[bodyLength - 1]; // Cresce o corpo
             bodyLength++;
-            GenerateValidPositionForFruit(&apple, NULL, head, body, bodyLength, true);
+            GenerateValidPositionForFruit(&apple, NULL, NULL, head, body, bodyLength, true, false);
         }
 
         // Verificar se comeu a uva
@@ -203,6 +228,16 @@ int main(void) {
             grape.isVisible = false;
             lastGrapeAppearanceTime = currentTime;
         }
+
+        // Verificar se comeu a laranja
+        if (orange.isVisible && head.x == orange.x && head.y == orange.y) {
+            score += 10;
+            for (int i = 0; i < 10; i++) body[bodyLength++] = body[bodyLength - 1];
+            orange.isVisible = false;
+            lastOrangeAppearanceTime = currentTime;
+        }
+
+
 
         // Verificar limites da tela
         if (head.x < 0 || head.x >= GetScreenWidth() || head.y < 0 || head.y >= GetScreenHeight()) gameOver = true;
@@ -242,6 +277,11 @@ int main(void) {
             DrawRectangle(grape.x + 27, grape.y + 5, 18, 18, PURPLE);
             DrawRectangle(grape.x + 16, grape.y + 28, 18, 18, PURPLE);
             DrawRectangle(grape.x + 20, grape.y, 20, 10, LIME);
+        }
+
+        if (orange.isVisible) {
+            DrawRectangle(orange.x + 5, orange.y + 5, 40, 40, ORANGE);
+            DrawRectangle(orange.x + 20, orange.y, 20, 10, LIME);
         }
 
         // Desenhar HUD do placar
