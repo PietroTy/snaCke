@@ -203,10 +203,6 @@ int main(void) {
             grape.isVisible = false;
             lastGrapeAppearanceTime = currentTime;
         }
-                // Verificar condição de vitória
-        if (bodyLength >= 144) {
-            victory = true;
-        }
 
         // Verificar limites da tela
         if (head.x < 0 || head.x >= GetScreenWidth() || head.y < 0 || head.y >= GetScreenHeight()) gameOver = true;
