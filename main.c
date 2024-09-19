@@ -42,6 +42,19 @@ bool IsPositionOccupiedBySnake(int x, int y, Snake head, Snake *body, int bodyLe
     return false;
 }
 
+// Função para verificar se uma posição está ocupada por alguma fruta
+bool IsPositionOccupiedByFruit(int x, int y, Apple apple, Grape grape, Orange orange) {
+    // Verifica a maçã
+    if (x == apple.x && y == apple.y) return true;
+    // Verifica a uva
+    if (grape.isVisible && x == grape.x && y == grape.y) return true;
+    // Verifica a laranja
+    if (orange.isVisible && x == orange.x && y == orange.y) return true;
+    
+    return false;
+}
+
+
 // Função para gerar uma nova posição válida para a maçã ou uva
 void GenerateValidPositionForFruit(Apple *apple, Grape *grape, Orange *orange, Snake head, Snake *body, int bodyLength, bool isApple, bool isGrape) {
     int fruitX, fruitY;
@@ -116,7 +129,7 @@ int main(void) {
 
         // Aumentar velocidade da cobra a cada 10 pontos
         if (score % 10 == 0 && score != 0) {
-            moveInterval = 0.2f - (0.02f * (score / 10));
+            moveInterval = 0.2f - (0.02f * (score / 25));
         }
 
         if (gameOver) {
