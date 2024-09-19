@@ -1,6 +1,5 @@
-# Projeto
- Modelo para Exercícios Criativos Usando Raylib.
+# Project
+ Snake Game using Raylib in C, idealized by Davi Beli.
 
 # Autor
- Davi Beli
  Pietro Turci
