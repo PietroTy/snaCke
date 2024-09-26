@@ -118,7 +118,7 @@ int main(void) {
     float moveInterval = 0.2f, lastMoveTime = 0.0f, lastGrapeAppearanceTime = 0.0f, lastOrangeAppearanceTime = 0.0f;
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
-    InitWindow(600, 600, "Snake Game");
+    InitWindow(600, 600, "snaCke");
     SetTargetFPS(60);
 
     ResetGame(&head, body, &bodyLength, &apple, &grape, &orange, &score, &moveInterval, &gameOver, &moved, &lastGrapeAppearanceTime, &lastOrangeAppearanceTime, (float) GetTime(), &direction, &victory);
@@ -127,9 +127,9 @@ int main(void) {
         float currentTime = GetTime(); // Obter o tempo atual
         float deltaTime = currentTime - lastMoveTime;
 
-        // Aumentar velocidade da cobra a cada 10 pontos
-        if (score % 10 == 0 && score != 0) {
-            moveInterval = 0.2f - (0.02f * (score / 25));
+        // Aumentar velocidade da cobra a cada 20 pontos
+        if (score % 20 == 0 && score != 0) {
+            moveInterval = 0.2f - (0.02f * (score / 20));
         }
 
         if (gameOver) {
