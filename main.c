@@ -119,6 +119,7 @@ int main(void) {
 
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(600, 600, "snaCke");
+    SetWindowIcon(LoadImage("resources/iconeSnaCke.png"));
     SetTargetFPS(60);
 
     ResetGame(&head, body, &bodyLength, &apple, &grape, &orange, &score, &moveInterval, &gameOver, &moved, &lastGrapeAppearanceTime, &lastOrangeAppearanceTime, (float) GetTime(), &direction, &victory);
