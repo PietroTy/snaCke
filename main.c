@@ -227,6 +227,9 @@ int main(void) {
             DrawText(scoreMessage, (GetScreenWidth() - MeasureText(scoreMessage, 60)) / 2, (GetScreenHeight() + 100) / 2, 60, WHITE);
             DrawText(highscoreMessage, (GetScreenWidth() - MeasureText(highscoreMessage, 40)) / 2, (GetScreenHeight() + 260) / 2, 40, WHITE);
             DrawText(resetMessage, (GetScreenWidth() - MeasureText(resetMessage, 30)) / 2, (GetScreenHeight() + 390) / 2, 30, WHITE);
+            
+            DrawText(TextFormat("©PietroTy 2024"), 10, 570, 20, WHITE);
+
             EndDrawing();
 
             continue;
@@ -251,6 +254,8 @@ int main(void) {
             DrawText(winMessage, (GetScreenWidth() - MeasureText(winMessage, 100)) / 2, (GetScreenHeight() - 200) / 2, 100, BLACK);
             DrawText(scoreMessage, (GetScreenWidth() - MeasureText(scoreMessage, 60)) / 2, (GetScreenHeight() + 100) / 2, 60, BLACK);
             DrawText(resetMessage, (GetScreenWidth() - MeasureText(resetMessage, 30)) / 2, (GetScreenHeight() + 300) / 2, 30, BLACK);
+
+            DrawText(TextFormat("©PietroTy 2024"), 10, 570, 20, WHITE);
 
             EndDrawing();
             continue;
@@ -371,6 +376,11 @@ int main(void) {
         bool headUp = (bodyLength > 0 && head.y > body[0].y);
         bool headDown = (bodyLength > 0 && head.y < body[0].y);
         DrawSnakeSegment(head, segmentWidth, segmentHeight, 0, true, headLeft, headRight, headUp, headDown);
+        if (open) {
+            DrawRectangle(head.x + 15, head.y + 15, 20, 20, BLACK);
+        } else {
+            DrawRectangle(head.x + 10, head.y + 20, 30, 10, BLACK);
+        }
 
         // Desenhar o corpo da cobra
         for (int i = 0; i < bodyLength; i++) {
@@ -403,9 +413,11 @@ int main(void) {
         DrawText(TextFormat("Score: %d", score), 10, 10, 30, WHITE);
 
         // Verificar condição de vitória
-        if (bodyLength >= 144) {
+        if (bodyLength >= 100) {
             victory = true;
         }
+
+        DrawText(TextFormat("©PietroTy 2024"), 10, 570, 20, WHITE);
 
         EndDrawing();
     }
