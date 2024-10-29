@@ -27,6 +27,48 @@ typedef struct Orange {
     float spawnTime;
 } Orange;
 
+// Função para desenhar os segmentos conectados
+void DrawSnakeSegment(Snake segment, int segmentWidth, int segmentHeight, int segN, bool isHead, bool drawLeft, bool drawRight, bool drawUp, bool drawDown) {
+    Color segmentColor = (segN % 2 == 0) ? DARKGREEN : LIME;
+
+    if (isHead) {
+        // Desenhar a cabeça da cobra
+        DrawRectangle(segment.x + 5, segment.y + 5, segmentWidth, segmentHeight, GREEN);  // Cor da cabeça
+        
+        // Conectar a cabeça ao primeiro segmento do corpo, se existir
+        if (drawLeft) {
+            DrawRectangle(segment.x - 5, segment.y + 5, 10, segmentHeight, GREEN);
+        }
+        if (drawRight) {
+            DrawRectangle(segment.x + segmentWidth + 5, segment.y + 5, 10, segmentHeight, GREEN);
+        }
+        if (drawUp) {
+            DrawRectangle(segment.x + 5, segment.y - 5, segmentWidth, 10, GREEN);
+        }
+        if (drawDown) {
+            DrawRectangle(segment.x + 5, segment.y + segmentHeight + 5, segmentWidth, 10, GREEN);
+        }
+    
+    } else {
+        // Desenha o corpo principal
+        DrawRectangle(segment.x + 5, segment.y + 5, segmentWidth, segmentHeight, segmentColor);
+
+        // Desenha os conectores entre os segmentos
+        if (drawLeft) {
+            DrawRectangle(segment.x - 5, segment.y + 5, 10, segmentHeight, segmentColor);
+        }
+        if (drawRight) {
+            DrawRectangle(segment.x + segmentWidth + 5, segment.y + 5, 10, segmentHeight, segmentColor);
+        }
+        if (drawUp) {
+            DrawRectangle(segment.x + 5, segment.y - 5, segmentWidth, 10, segmentColor);
+        }
+        if (drawDown) {
+            DrawRectangle(segment.x + 5, segment.y + segmentHeight + 5, segmentWidth, 10, segmentColor);
+        }
+    }
+}
+
 // Função para verificar se uma fruta está sobre o corpo da cobra
 bool IsPositionOccupiedBySnake(int x, int y, Snake head, Snake *body, int bodyLength) {
     // Verifica se está na posição da cabeça
@@ -104,13 +146,44 @@ void ResetGame(Snake *head, Snake *body, int *bodyLength, Apple *apple, Grape *g
     *direction = 0;
     
 }
+// Função para salvar o *highscore* em um arquivo
+void SaveHighscore(int highscore) {
+    FILE *file = fopen("resources/Highscore.txt", "w");
+    if (file != NULL) {
+        fprintf(file, "%d\n", highscore);
+        fclose(file);
+        printf("Highscore salvo: %d\n", highscore);
+    } else {
+        printf("Erro ao salvar o highscore.\n");
+    }
+}
+
+// Função para carregar o *highscore* do arquivo
+int LoadHighscore() {
+    FILE *file = fopen("resources/Highscore.txt", "r");
+    int highscore = 0;
+
+    if (file != NULL) {
+        fscanf(file, "%d", &highscore);
+        fclose(file);
+        printf("Highscore carregado: %d\n", highscore);
+    } else {
+        printf("Nenhum highscore salvo encontrado.\n");
+    }
+
+    return highscore;
+}
 
 int main(void) {
+    const int segmentWidth = 40;
+    const int segmentHeight = 40;
     Snake head;
     Apple apple;
     Grape grape;
     Orange orange;
     Snake body[144]; 
+    int lastDirection = 0;
+    int highscore = LoadHighscore();
     int bodyLength = 2;
     int direction = 0;
     int score = 0;
@@ -134,25 +207,42 @@ int main(void) {
         }
 
         if (gameOver) {
-            BeginDrawing();
-            ClearBackground(BLACK);
-            const char *lostMessage = "You Lost!";
-            const char *scoreMessage = TextFormat("Score: %d", score);
-            const char *resetMessage = "press R to reset";
-            DrawText(lostMessage, (GetScreenWidth() - MeasureText(lostMessage, 100)) / 2, (GetScreenHeight() - 200) / 2, 100, WHITE);
-            DrawText(scoreMessage, (GetScreenWidth() - MeasureText(scoreMessage, 60)) / 2, (GetScreenHeight() + 100) / 2, 60, WHITE);
-            DrawText(resetMessage, (GetScreenWidth() - MeasureText(resetMessage, 30)) / 2, (GetScreenHeight() + 300) / 2, 30, WHITE);
+
+            if (score > highscore) {
+                highscore = score;
+                SaveHighscore(highscore); // Salva o novo *highscore*
+            }
 
             if (IsKeyPressed(KEY_R)) {
                 ResetGame(&head, body, &bodyLength, &apple, &grape, &orange, &score, &moveInterval, &gameOver, &moved, &lastGrapeAppearanceTime, &lastOrangeAppearanceTime, (float) GetTime(), &direction, &victory);
             }
 
-
+            BeginDrawing();
+            ClearBackground(BLACK);
+            const char *lostMessage = "You Lost!";
+            const char *scoreMessage = TextFormat("Score: %d", score);
+            const char *highscoreMessage = TextFormat("Highscore: %d", highscore);
+            const char *resetMessage = "press R to reset";
+            DrawText(lostMessage, (GetScreenWidth() - MeasureText(lostMessage, 100)) / 2, (GetScreenHeight() - 200) / 2, 100, WHITE);
+            DrawText(scoreMessage, (GetScreenWidth() - MeasureText(scoreMessage, 60)) / 2, (GetScreenHeight() + 100) / 2, 60, WHITE);
+            DrawText(highscoreMessage, (GetScreenWidth() - MeasureText(highscoreMessage, 40)) / 2, (GetScreenHeight() + 260) / 2, 40, WHITE);
+            DrawText(resetMessage, (GetScreenWidth() - MeasureText(resetMessage, 30)) / 2, (GetScreenHeight() + 390) / 2, 30, WHITE);
             EndDrawing();
+
             continue;
         }
 
         if (victory) {
+
+            if (score > highscore) {
+                highscore = score;
+                SaveHighscore(highscore); // Salva o novo *highscore*
+            }
+            
+            if (IsKeyPressed(KEY_R)) {
+                ResetGame(&head, body, &bodyLength, &apple, &grape, &orange, &score, &moveInterval, &gameOver, &moved, &lastGrapeAppearanceTime, &lastOrangeAppearanceTime, (float) GetTime(), &direction, &victory);
+            }
+
             BeginDrawing();
             ClearBackground(WHITE);
             const char *winMessage = "You Won!";
@@ -162,32 +252,40 @@ int main(void) {
             DrawText(scoreMessage, (GetScreenWidth() - MeasureText(scoreMessage, 60)) / 2, (GetScreenHeight() + 100) / 2, 60, BLACK);
             DrawText(resetMessage, (GetScreenWidth() - MeasureText(resetMessage, 30)) / 2, (GetScreenHeight() + 300) / 2, 30, BLACK);
 
-            if (IsKeyPressed(KEY_R)) {
-                ResetGame(&head, body, &bodyLength, &apple, &grape, &orange, &score, &moveInterval, &gameOver, &moved, &lastGrapeAppearanceTime, &lastOrangeAppearanceTime, (float) GetTime(), &direction, &victory);
-            }
-
-
             EndDrawing();
             continue;
         }
         
 
+
+
         // Controle de movimento
         if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_A) || IsKeyPressed(KEY_S) || IsKeyPressed(KEY_W) ||
             IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_UP)) {
-
-            if ((IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) && direction != 2) direction = 1; // Direita
-            else if ((IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) && direction != 1) direction = 2; // Esquerda
-            else if ((IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) && direction != 4) direction = 3; // Baixo
-            else if ((IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) && direction != 3) direction = 4; // Cima
-            moved = true;
+            
+            int newDirection = direction; // Variável temporária para a nova direção
+            
+            // Atualizar nova direção apenas se não for oposta à atual
+            if ((IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT)) && lastDirection != 2) newDirection = 1; // Direita
+            else if ((IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT)) && lastDirection != 1) newDirection = 2; // Esquerda
+            else if ((IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN)) && lastDirection != 4) newDirection = 3; // Baixo
+            else if ((IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP)) && lastDirection != 3) newDirection = 4; // Cima
+            
+            // Atualiza a direção apenas se houver uma mudança válida
+            if (newDirection != direction) {
+                direction = newDirection;
+                moved = true;
+            }
         }
 
         // Movimento da cobra
         if (deltaTime >= moveInterval) {
-            lastMoveTime = currentTime;
             if(open) open = false;
             else open = true;
+            lastMoveTime = currentTime;
+            lastDirection = direction; // Armazena a direção atual antes de atualizar a posição
+
+            // Resto do código de movimento da cobra
             for (int i = bodyLength - 1; i > 0; i--) body[i] = body[i - 1];
             if (bodyLength > 0) {
                 body[0].x = head.x;
@@ -198,6 +296,7 @@ int main(void) {
             else if (direction == 3) head.y += 50;
             else if (direction == 4) head.y -= 50;
         }
+
 
         // Colisão com o corpo
         if (moved && bodyLength > 2) {
@@ -266,19 +365,21 @@ int main(void) {
             for (int j = 0; j <= GetScreenHeight(); j += 100) DrawRectangle(i + 50, j + 50, 50, 50, DARKGRAY);
         }
 
-        // Desenhar cabeça e corpo
-        DrawRectangle(head.x, head.y, 50, 50, GREEN);
-        if (open) {
-            DrawRectangle(head.x + 10, head.y + 10, 30, 30, BLACK);
-        } else {
-            DrawRectangle(head.x + 5, head.y + 20, 40, 10, BLACK);
-        }
+        // Desenhar a cabeça da cobra
+        bool headLeft = (bodyLength > 0 && head.x > body[0].x);
+        bool headRight = (bodyLength > 0 && head.x < body[0].x);
+        bool headUp = (bodyLength > 0 && head.y > body[0].y);
+        bool headDown = (bodyLength > 0 && head.y < body[0].y);
+        DrawSnakeSegment(head, segmentWidth, segmentHeight, 0, true, headLeft, headRight, headUp, headDown);
+
+        // Desenhar o corpo da cobra
         for (int i = 0; i < bodyLength; i++) {
-            if (i % 2) {
-                DrawRectangle(body[i].x, body[i].y, 50, 50, GREEN);
-            } else {
-                DrawRectangle(body[i].x, body[i].y, 50, 50, DARKGREEN);
-            }
+            bool drawLeft = (i > 0 && body[i].x > body[i - 1].x);
+            bool drawRight = (i > 0 && body[i].x < body[i - 1].x);
+            bool drawUp = (i > 0 && body[i].y > body[i - 1].y);
+            bool drawDown = (i > 0 && body[i].y < body[i - 1].y);
+
+            DrawSnakeSegment(body[i], segmentWidth, segmentHeight, i + 1, false, drawLeft, drawRight, drawUp, drawDown);
         }
 
         // Desenhar maçã
