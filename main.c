@@ -148,7 +148,7 @@ void ResetGame(Snake *head, Snake *body, int *bodyLength, Apple *apple, Grape *g
 }
 // Função para salvar o *highscore* em um arquivo
 void SaveHighscore(int highscore) {
-    FILE *file = fopen("resources/Highscore.txt", "w");
+    FILE *file = fopen("resources/SnackeHighscore.txt", "w");
     if (file != NULL) {
         fprintf(file, "%d\n", highscore);
         fclose(file);
@@ -160,7 +160,7 @@ void SaveHighscore(int highscore) {
 
 // Função para carregar o *highscore* do arquivo
 int LoadHighscore() {
-    FILE *file = fopen("resources/Highscore.txt", "r");
+    FILE *file = fopen("resources/SnackeHighscore.txt", "r");
     int highscore = 0;
 
     if (file != NULL) {
@@ -366,8 +366,8 @@ int main(void) {
 
         // Desenhar grid
         for (int i = 0; i <= GetScreenWidth(); i += 100) {
-            for (int j = 0; j <= GetScreenHeight(); j += 100) DrawRectangle(i, j, 50, 50, DARKGRAY);
-            for (int j = 0; j <= GetScreenHeight(); j += 100) DrawRectangle(i + 50, j + 50, 50, 50, DARKGRAY);
+            for (int j = 0; j <= GetScreenHeight(); j += 100) DrawRectangle(i, j, 50, 50, THEGRAY);
+            for (int j = 0; j <= GetScreenHeight(); j += 100) DrawRectangle(i + 50, j + 50, 50, 50, THEGRAY);
         }
 
         // Desenhar a cabeça da cobra
