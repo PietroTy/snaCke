@@ -195,6 +195,10 @@ int main(void) {
     SetWindowIcon(LoadImage("resources/iconeSnaCke.png"));
     SetTargetFPS(60);
 
+    InitAudioDevice();
+
+    Sound pop = LoadSound("resources/Pop.wav");
+
     ResetGame(&head, body, &bodyLength, &apple, &grape, &orange, &score, &moveInterval, &gameOver, &moved, &lastGrapeAppearanceTime, &lastOrangeAppearanceTime, (float) GetTime(), &direction, &victory);
 
     while (!WindowShouldClose()) {
@@ -203,7 +207,7 @@ int main(void) {
 
         // Aumentar velocidade da cobra a cada 20 pontos
         if (score % 20 == 0 && score != 0) {
-            moveInterval = 0.2f - (0.02f * (score / 20));
+            moveInterval = 0.2f - (0.01f * (score / 20));
         }
 
         if (gameOver) {
@@ -334,6 +338,7 @@ int main(void) {
         // Verificar se comeu a maçã
         if (head.x == apple.x && head.y == apple.y) {
             score++;
+            PlaySound(pop);
             body[bodyLength] = body[bodyLength - 1]; // Cresce o corpo
             bodyLength++;
             GenerateValidPositionForFruit(&apple, NULL, NULL, head, body, bodyLength, true, false);
@@ -342,6 +347,7 @@ int main(void) {
         // Verificar se comeu a uva
         if (grape.isVisible && head.x == grape.x && head.y == grape.y) {
             score += 3;
+            PlaySound(pop);
             for (int i = 0; i < 3; i++) body[bodyLength++] = body[bodyLength - 1];
             grape.isVisible = false;
             lastGrapeAppearanceTime = currentTime;
@@ -350,6 +356,7 @@ int main(void) {
         // Verificar se comeu a laranja
         if (orange.isVisible && head.x == orange.x && head.y == orange.y) {
             score += 10;
+            PlaySound(pop);
             for (int i = 0; i < 10; i++) body[bodyLength++] = body[bodyLength - 1];
             orange.isVisible = false;
             lastOrangeAppearanceTime = currentTime;
@@ -422,6 +429,7 @@ int main(void) {
         EndDrawing();
     }
 
+    CloseAudioDevice();
     CloseWindow();
     return 0;
 }
